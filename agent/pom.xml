@@ -11,15 +11,6 @@
 
     <artifactId>agent</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <finalName>tomas-agent</finalName>
         <plugins>
@@ -36,31 +27,63 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>io.github.dzw1113.agent.TomasAgentBoot</Premain-Class>
+                            <Agent-Class>io.github.dzw1113.agent.TomasAgentBoot</Agent-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                            <Specification-Title>${project.name}</Specification-Title>
+                            <Specification-Version>${project.version}</Specification-Version>
+                            <Implementation-Title>${project.name}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                        </manifestEntries>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>
+                            jar-with-dependencies
+                        </descriptorRef>
+                    </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <archive>
-                                <manifestEntries>
-                                    <Premain-Class>io.github.dzw1113.agent.TomasAgentBoot</Premain-Class>
-                                    <Agent-Class>io.github.dzw1113.agent.TomasAgentBoot</Agent-Class>
-                                    <Can-Redefine-Classes>true</Can-Redefine-Classes>
-                                    <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                                    <Specification-Title>${project.name}</Specification-Title>
-                                    <Specification-Version>${project.version}</Specification-Version>
-                                    <Implementation-Title>${project.name}</Implementation-Title>
-                                    <Implementation-Version>${project.version}</Implementation-Version>
-                                </manifestEntries>
-                            </archive>
-                        </configuration>
                     </execution>
                 </executions>
+
+
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                        <phase>package</phase>-->
+<!--                        <configuration>-->
+<!--                            <descriptorRefs>-->
+<!--                                <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                            </descriptorRefs>-->
+<!--                            <archive>-->
+<!--                                <manifestEntries>-->
+<!--                                    <Premain-Class>io.github.dzw1113.agent.TomasAgentBoot</Premain-Class>-->
+<!--                                    <Agent-Class>io.github.dzw1113.agent.TomasAgentBoot</Agent-Class>-->
+<!--                                    <Can-Redefine-Classes>true</Can-Redefine-Classes>-->
+<!--                                    <Can-Retransform-Classes>true</Can-Retransform-Classes>-->
+<!--                                    <Specification-Title>${project.name}</Specification-Title>-->
+<!--                                    <Specification-Version>${project.version}</Specification-Version>-->
+<!--                                    <Implementation-Title>${project.name}</Implementation-Title>-->
+<!--                                    <Implementation-Version>${project.version}</Implementation-Version>-->
+<!--                                </manifestEntries>-->
+<!--                            </archive>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
             </plugin>
         </plugins>
     </build>

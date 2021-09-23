@@ -9,15 +9,15 @@
         <module name="core" />
         <module name="agent" />
         <module name="starter" />
-        <module name="test" />
         <module name="common" />
+        <module name="assembly" />
         <module name="agent-starter" />
-        <module name="test-controller" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="agent" target="1.8" />
       <module name="agent-starter" target="1.8" />
+      <module name="assembly" target="8" />
       <module name="common" target="8" />
       <module name="core" target="8" />
       <module name="starter" target="8" />

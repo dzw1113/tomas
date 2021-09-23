@@ -2,22 +2,30 @@ package io.github.dzw1113.starter.netty;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.dzw1113.common.model.NettyDecoder;
-import io.github.dzw1113.common.model.SocketRequest;
-import io.github.dzw1113.common.model.SocketResponse;
+import io.github.dzw1113.common.util.ChannelCache;
+import io.github.dzw1113.common.util.MsgpackDecoder;
+import io.github.dzw1113.common.util.MsgpackEncoder;
+import io.github.dzw1113.starter.netty.handler.CloseChannelAdapter;
+import io.github.dzw1113.starter.netty.handler.HeartBeatRespHandlerAdapter;
+import io.github.dzw1113.starter.netty.handler.MsgpackServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 
 /**
  * @description:
@@ -38,7 +46,18 @@ public class NettyServer {
     }
     
     public static void main(String[] args) throws Exception {
-        new NettyServer(12345).start();
+        try {
+            System.out.println(sun.misc.VM.isBooted());
+            new Thread(() -> {
+                try {
+                    new NettyServer(12345).start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        } catch (Exception e) {
+            log.error("netty创建失败！", e);
+        }
     }
     
     public static Map<String, Channel> getMap() {
@@ -51,21 +70,42 @@ public class NettyServer {
             bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        public void initChannel(SocketChannel channel) {
-                            channel.pipeline().addLast(
-                                    /** 将RPC请求进行解码（为了处理请求）*/
-                                    new NettyDecoder(SocketRequest.class))
-                                    /** 将RPC响应进行编码（为了返回响应）*/
-                                    .addLast(new NettyDecoder(SocketResponse.class))
-                                    /** 处理RPC请求*/
-                                    .addLast(new ServerHandler());
+                        public void initChannel(SocketChannel socketChannel) {
+                            ChannelCache.addSession(socketChannel);
+                            //用于处理半包
+                            socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2));
+                            socketChannel.pipeline().addLast(new MsgpackDecoder());
+                            socketChannel.pipeline().addLast("frameEncoder", new LengthFieldPrepender(2));
+                            socketChannel.pipeline().addLast(new MsgpackEncoder());
+                            //
+//                            socketChannel.pipeline().addLast("readTimeOutHandler", new ReadTimeoutHandler(30, TimeUnit.MILLISECONDS));
+                            socketChannel.pipeline().addLast("heartBeatResp", new HeartBeatRespHandlerAdapter());//心跳链
+                            socketChannel.pipeline().addLast("closeChannelAdapter", new CloseChannelAdapter());//关闭链路时释放资源
+                            socketChannel.pipeline().addLast(new MsgpackServerHandler());
                         }
+    
+                        @Override
+                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                            ChannelCache.addSession(ctx.channel());
+                            super.exceptionCaught(ctx, cause);
+                        }
+                        
+                        @Override
+                        public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+                            super.handlerRemoved(ctx);
+                        }
+                        
+                        @Override
+                        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                            ChannelCache.addSession(ctx.channel());
+                            super.channelActive(ctx);
+                        }
+                        
                     }).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
             
             
             ChannelFuture future = bootstrap.bind("127.0.0.1", port).sync();
             log.info("server 启动成功绑定端口： {}", port);
-            
             future.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();

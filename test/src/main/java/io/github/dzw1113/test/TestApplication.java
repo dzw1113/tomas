@@ -14,6 +14,7 @@ public class TestApplication {
     public static void main(String[] args) {
         SpringApplication.run(TestApplication.class, args);
         System.out.println(123);
+        //-javaagent:E:\\git\\asd1\\111\\tomas\\agent\\target\\tomas-agent-jar-with-dependencies.jar
     }
     
 }

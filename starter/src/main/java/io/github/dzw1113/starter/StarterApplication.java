@@ -31,7 +31,13 @@ public class StarterApplication {
     public static void main(String[] args) {
         SpringApplication.run(StarterApplication.class, args);
         try {
-            new NettyServer(12345).start();
+            new Thread(() -> {
+                try {
+                    new NettyServer(12345).start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
         } catch (Exception e) {
             log.error("netty创建失败！", e);
         }

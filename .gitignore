@@ -6,3 +6,6 @@
 /starter/target/
 /test/target/
 /test-controller/target/
+/out/
+.idea/
+**/*.iml

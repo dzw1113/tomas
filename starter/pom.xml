@@ -19,6 +19,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.github.dzw1113</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
@@ -26,11 +32,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.github.dzw1113</groupId>
-            <artifactId>core</artifactId>
-            <version>1.0.1</version>
-        </dependency>
+
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
@@ -57,9 +59,155 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.68.Final</version>
+            <version>5.0.0.Alpha2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>msgpack-core</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+
+
     </dependencies>
+
+
+    <build>
+        <finalName>tomas</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <target>${project.build.directory}/</target>
+                    <!-- 文件生成的根目录 -->
+                    <assembleDirectory>${project.build.directory}/app</assembleDirectory>
+                    <!-- 打包的jar，以及maven依赖的jar放到这个目录里面 -->
+                    <repositoryName>lib</repositoryName>
+                    <!-- 可执行脚本的目录 -->
+                    <binFolder>bin</binFolder>
+                    <!-- 配置文件的目标目录 -->
+                    <configurationDirectory>webRoot</configurationDirectory>
+                    <!-- 拷贝配置文件到上面的目录中 -->
+                    <copyConfigurationDirectory>false</copyConfigurationDirectory>
+                    <!-- 从哪里拷贝配置文件 (默认src/main/config) -->
+                    <configurationSourceDirectory>src/main/resources</configurationSourceDirectory>
+                    <!-- lib目录中jar的存放规则，默认是${groupId}/${artifactId}的目录格式，flat表示直接把jar放到lib目录 -->
+                    <repositoryLayout>flat</repositoryLayout>
+                    <encoding>UTF-8</encoding>
+                    <logsDirectory>logs</logsDirectory>
+                    <tempDirectory>tmp</tempDirectory>
+                    <extraJvmArguments>-Xmx2048m -Djava.net.preferIPv4Stack=true -Djava.io.tmpdir=../tmp
+                    </extraJvmArguments>
+                    <programs>
+                        <!-- 程序打包：mvn clean package appassembler:assemble -->
+                        <program>
+                            <!-- 生成的脚本文件的名称，比如start.sh,你也可以根据你的需要命名成其他名字 -->
+                            <id>tomas</id>
+                            <mainClass>io.github.dzw1113.starter.StarterApplication</mainClass>
+                            <!-- 生成linux, windows两种平台的执行脚本 -->
+                            <platforms>
+                                <platform>windows</platform>
+                                <platform>unix</platform>
+                            </platforms>
+                        </program>
+                    </programs>
+
+                    <daemons>
+                        <!-- 后台程序打包：mvn clean package appassembler:generate-daemons -->
+                        <daemon>
+                            <id>tomas</id>
+                            <mainClass>io.github.dzw1113.starter.StarterApplication</mainClass>
+                            <platforms>
+                                <platform>jsw</platform>
+                            </platforms>
+                            <generatorConfigurations>
+                                <generatorConfiguration>
+                                    <generator>jsw</generator>
+                                    <includes>
+                                        <include>linux-x86-32</include>
+                                        <include>linux-x86-64</include>
+                                        <include>macosx-universal-32</include>
+                                        <include>macosx-universal-64</include>
+                                        <include>windows-x86-32</include>
+                                        <include>windows-x86-64</include>
+                                    </includes>
+                                    <configuration>
+                                        <property>
+                                            <name>configuration.directory.in.classpath.first</name>
+                                            <value>webRoot</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.ping.timeout</name>
+                                            <value>120</value>
+                                        </property>
+                                        <property>
+                                            <name>set.default.REPO_DIR</name>
+                                            <value>lib</value>
+                                        </property>
+
+                                        <property>
+                                            <name>wrapper.logfile</name>
+                                            <value>logs/wrapper.log</value>
+                                        </property>
+                                    </configuration>
+                                </generatorConfiguration>
+                            </generatorConfigurations>
+
+                            <jvmSettings>
+                                <extraArguments>
+                                    <extraArgument>-Djava.io.tmpdir=tmp</extraArgument>
+                                </extraArguments>
+                            </jvmSettings>
+                        </daemon>
+                    </daemons>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <mainClass>io.github.dzw1113.starter.StarterApplication</mainClass>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <attach>false</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

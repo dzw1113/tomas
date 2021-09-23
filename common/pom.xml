@@ -26,22 +26,16 @@
         </dependency>
         <!-- Protostuff -->
         <dependency>
-            <groupId>io.protostuff</groupId>
-            <artifactId>protostuff-core</artifactId>
-            <version>1.7.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.protostuff</groupId>
-            <artifactId>protostuff-runtime</artifactId>
-            <version>1.7.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.68.Final</version>
+            <version>5.0.0.Alpha2</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>jackson-dataformat-msgpack</artifactId>
+            <version>0.9.0</version>
         </dependency>
 
     </dependencies>

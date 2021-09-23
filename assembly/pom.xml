@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>tomas</artifactId>
+        <groupId>io.github.dzw1113</groupId>
+        <version>1.0.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>assembly</artifactId>
+
+    <properties>
+        <!--所有的都必须统一，如果为写死的数字，那么都要为数字，否则都要是变量形式，不然会报错-->
+        <assembly.name>tomas-v${project.version}</assembly.name>
+        <assembly.format>tgz</assembly.format>
+        <skipDeploy>true</skipDeploy>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.dzw1113</groupId>
+            <artifactId>starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.dzw1113</groupId>
+            <artifactId>agent-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <!-- 配置assembly插件 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <finalName>${assembly.name}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <!-- 配置打包方式assembly.xml文件路径 -->
+                        <descriptor>assembly/assembly.xml</descriptor>
+                    </descriptors>
+                    <!-- 打成的包输出目录 -->
+                    <outputDirectory>${project.parent.basedir}/dist</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <!-- 只执行一次 -->
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

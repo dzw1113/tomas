@@ -1,0 +1,41 @@
+<assembly>
+    <id>bin</id>
+    <!--最终打包成一个用于发布的zip文件-->
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+
+    <fileSets>
+        <!--模块jar包-->
+        <fileSet>
+            <directory>${project.parent.basedir}/agent-starter/target/tomas-agent-boot.jar</directory>
+            <destName>tomas-agent-boot.jar</destName>
+        </fileSet>
+        <fileSet>
+            <directory>${project.parent.basedir}/starter/target/</directory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+
+        <!--执行脚本-->
+        <fileSet>
+            <directory>${project.parent.basedir}/assembly/bin</directory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
+
+        <!--logs-->
+        <fileSet>
+            <directory>${project.parent.basedir}/assembly/logs</directory>
+            <outputDirectory>logs</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.parent.basedir}/assembly/tmp</directory>
+            <outputDirectory>tmp</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+</assembly>
